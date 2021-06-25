@@ -7,6 +7,7 @@ const db = require("../database/methods/price.js");
 const app = express();
 const cors = require("cors");
 const port = 3000;
+const faker = require("faker");
 
 // const whiteList = [
 //   "http://54.183.2.218",
@@ -38,10 +39,25 @@ app.use(morgan("dev"));
 //   res.end();
 // });
 
+// CREATE
+app.post("/api/price/:bookId", (req, res) => {
+  db.createNewBook(Price.Price)
+    .then((book) => {
+      res.send(JSON.stringify(book));
+      console.log("app.post successful");
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(404).send("failed to create new book");
+    });
+});
+
+// READ w bookId
 app.get("/api/price/:bookId", (req, res) => {
   db.findBookId(Price.Price, req.params.bookId)
     .then((book) => {
       res.send(JSON.stringify(book.dataValues));
+      console.log("app.get successful");
     })
     .catch((err) => {
       console.error(err);
@@ -49,33 +65,37 @@ app.get("/api/price/:bookId", (req, res) => {
     });
 });
 
-app.post("/api/price/:bookId", (req, res) => {
-  db.createNewBook()
-    .then(() => {})
-    .catch((err) => {
-      console.error(err);
-      res.status(404).send("failed to create new book");
-    });
-});
-
+// UPDATE
 app.put("/api/price/:bookId", (req, res) => {
-  db.updateBook()
-    .then(() => {})
-    .catch(() => {
+  let bookId = faker.datatype.number();
+
+  db.updateBook(Price.Price, bookId)
+    .then((book) => {
+      res.send(JSON.stringify(book.dataValues));
+      console.log("app.put successful");
+    })
+    .catch((err) => {
       console.error(err);
       res.status(404).send("failed to update book");
     });
 });
 
+// DELETE
 app.delete("/api/price/:bookId", (req, res) => {
-  db.deleteBook()
-    .then(() => {})
-    .catch(() => {
+  let bookId = faker.datatype.number();
+
+  deleteBook(Price.Price, bookId)
+    .then((result) => {
+      res.sendStatus(200);
+      console.log("app.delete successful");
+    })
+    .catch((err) => {
       console.error(err);
       res.status(404).send("failed to delete book");
     });
 });
 
+// READ w book title
 app.get("/api/price/:bookTitle", (req, res) => {
   const book = db
     .findBookTitle(Price.Price, req.params.bookTitle)

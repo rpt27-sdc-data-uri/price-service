@@ -1,3 +1,5 @@
+const faker = require("faker");
+
 // =========== METHODS ==============
 const init = async (sequelize, Price) => {
   // seed table with psuedo-random data
@@ -87,11 +89,48 @@ const findBookTitle = async (Price, bookTitle) => {
   }
 };
 
-const createNewBook = async (Price) => {};
+const createNewBook = async (Price) => {
+  const record = await Price.create({
+    book_title: faker.lorem.words(),
+    price: faker.datatype.float(),
+  });
+  if (!record) {
+    console.log(`== ${bookId} not created!`);
+    return null;
+  } else {
+    return record;
+  }
+};
 
-const updateBook = async (Price) => {};
+const updateBook = async (Price, bookId) => {
+  const record = await Price.update(
+    {
+      book_title: faker.lorem.words(),
+      price: faker.datatype.float(),
+    },
+    { where: { book_id: bookId } }
+  );
 
-const deleteBook = async (Price) => {};
+  if (!record) {
+    console.log(`== ${bookId} not updated!`);
+    return null;
+  } else {
+    return record;
+  }
+};
+
+const deleteBook = async (Price, bookId) => {
+  const record = await Price.destroy({
+    where: { book_id: bookId },
+  });
+
+  if (!record) {
+    console.log(`== ${bookId} not deleted!`);
+    return null;
+  } else {
+    return record;
+  }
+};
 
 module.exports = {
   findBookTitle,
