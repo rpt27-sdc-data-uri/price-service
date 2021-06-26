@@ -75,20 +75,6 @@ const findBookId = async (Price, bookId) => {
   }
 };
 
-const findBookTitle = async (Price, bookTitle) => {
-  const record = await Price.findOne({
-    where: {
-      book_title: bookTitle,
-    },
-  });
-  if (record === null) {
-    console.log(`== find book title for ${bookTitle} not found!`);
-    return null;
-  } else {
-    return record;
-  }
-};
-
 const createNewBook = async (Price) => {
   const record = await Price.create({
     book_title: faker.lorem.words(),
@@ -132,8 +118,21 @@ const deleteBook = async (Price, bookId) => {
   }
 };
 
+// const findBookTitle = async (Price, bookTitle) => {
+//   const record = await Price.findOne({
+//     where: {
+//       book_title: bookTitle,
+//     },
+//   });
+//   if (record === null) {
+//     console.log(`== find book title for ${bookTitle} not found!`);
+//     return null;
+//   } else {
+//     return record;
+//   }
+// };
+
 module.exports = {
-  findBookTitle,
   findBookId,
   createNewBook,
   updateBook,
