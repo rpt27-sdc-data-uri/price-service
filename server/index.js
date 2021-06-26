@@ -35,15 +35,15 @@ app.use(compression());
 app.use(express.static(path.join(__dirname, "..", "/public")));
 app.use(morgan("dev"));
 
-// app.get("/", (req, res) => {
-//   res.end();
-// });
+app.get("/", (req, res) => {
+  res.end();
+});
 
 // CREATE
-app.post("/api/price/:bookId", (req, res) => {
+app.post("/api/price/postNewBook", (req, res) => {
   db.createNewBook(Price.Price)
     .then((book) => {
-      res.send(JSON.stringify(book));
+      res.send(JSON.stringify(book.dataValues));
       console.log("app.post successful");
     })
     .catch((err) => {
@@ -54,7 +54,9 @@ app.post("/api/price/:bookId", (req, res) => {
 
 // READ w bookId
 app.get("/api/price/:bookId", (req, res) => {
-  db.findBookId(Price.Price, req.params.bookId)
+  const bookId = req.params.bookId;
+
+  db.findBookId(Price.Price, bookId)
     .then((book) => {
       res.send(JSON.stringify(book.dataValues));
       console.log("app.get successful");
@@ -67,11 +69,11 @@ app.get("/api/price/:bookId", (req, res) => {
 
 // UPDATE
 app.put("/api/price/:bookId", (req, res) => {
-  let bookId = faker.datatype.number();
+  const bookId = req.params.bookId;
 
   db.updateBook(Price.Price, bookId)
-    .then((book) => {
-      res.send(JSON.stringify(book.dataValues));
+    .then((numberUpdated) => {
+      res.send(JSON.stringify(numberUpdated));
       console.log("app.put successful");
     })
     .catch((err) => {
@@ -82,9 +84,9 @@ app.put("/api/price/:bookId", (req, res) => {
 
 // DELETE
 app.delete("/api/price/:bookId", (req, res) => {
-  let bookId = faker.datatype.number();
+  const bookId = req.params.bookId;
 
-  deleteBook(Price.Price, bookId)
+  db.deleteBook(Price.Price, bookId)
     .then((result) => {
       res.sendStatus(200);
       console.log("app.delete successful");
@@ -96,17 +98,17 @@ app.delete("/api/price/:bookId", (req, res) => {
 });
 
 // READ w book title
-app.get("/api/price/:bookTitle", (req, res) => {
-  const book = db
-    .findBookTitle(Price.Price, req.params.bookTitle)
-    .then((book) => {
-      res.send(JSON.stringify(book.dataValues));
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(404).send("failed to find resource");
-    });
-});
+// app.get("/api/price/:bookTitle", (req, res) => {
+//   const book = db
+//     .findBookTitle(Price.Price, req.params.bookTitle)
+//     .then((book) => {
+//       res.send(JSON.stringify(book.dataValues));
+//     })
+//     .catch((err) => {
+//       console.error(err);
+//       res.status(404).send("failed to find resource");
+//     });
+// });
 
 if (process.env.NODE_ENV !== "test") {
   app.listen(port, () => {
