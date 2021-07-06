@@ -23,8 +23,10 @@
     "commit": "git commit",
     "lint": "eslint . --ext .js,.jsx",
     "precommit": "npm run test",
-    "seed-mongo": "node database/seeding.js seedMongo",
-    "seed-postgres": "node --max-old-space-size=8192 database/seeding.js seedPostgres"
+    "seed-mongo-books": "node --max-old-space-size=8192 database/seeding.js seedMongoBooks",
+    "seed-mongo-reviews": "node --max-old-space-size=8192 database/seeding.js seedMongoReviews",
+    "seed-postgres-books": "node --max-old-space-size=8192 database/seeding.js seedPostgresBooks",
+    "seed-postgres-reviews": "node --max-old-space-size=8192 database/seeding.js seedPostgresReviews"
   },
   "repository": {
     "type": "git",
@@ -78,6 +80,7 @@
     "faker": "^5.5.3",
     "jest-fetch-mock": "^3.0.3",
     "make-runnable": "^1.3.10",
+    "mongoose": "^5.13.2",
     "morgan": "^1.10.0",
     "mysql2": "^2.2.5",
     "nodemon": "^2.0.7",
