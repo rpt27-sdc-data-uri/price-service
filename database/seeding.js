@@ -188,9 +188,9 @@ require("make-runnable");
 // module.exports.seedPostgresReviews = () => {
 //   let fileNum = 1;
 //   let reviewId = 0;
-//   let increment = 20;
+//   let increment = 2000000;
 //   let bookStart = 0;
-//   let bookEnd = 20;
+//   let bookEnd = 2000000;
 
 //   const createCsvFile = async (fileNum, bookStart, bookEnd) => {
 //     console.log(`-- postgres reviews csv writeStream #${fileNum} started -- `);
@@ -218,7 +218,7 @@ require("make-runnable");
 //       };
 
 //       const csv = await csvwrite();
-//       // writer.end();
+//       writer.end();
 
 //       fileNum++;
 //       bookStart = bookEnd;
@@ -234,15 +234,15 @@ require("make-runnable");
 //       console.log(` -- postgres reviews csv writeStream complete -- `);
 //     }
 //   };
-// createCsvFile().then(async (result) => {
-//   console.log(" -- postgres reviews seeding query started -- ");
+//   createCsvFile().then(async (result) => {
+//     console.log(" -- postgres reviews seeding query started -- ");
 
-//   // for (var file = 1; file < 6; file++) {
-//   //   const seeded = await postgres.query(
-//   //     `COPY postgresseedreviews (review_id, review_text, rating, book_id) FROM '/Users/carsonweinand/Desktop/Hack_Reactor/SDC/price-service/database/reviews/postgres-reviews-seed${file}.csv' WITH (FORMAT CSV, HEADER true, DELIMITER ',');`
-//   //   );
-//   // }
+//     for (var file = 1; file < 6; file++) {
+//       const seeded = await postgres.query(
+//         `COPY postgresseedreviews (review_id, review_text, rating, book_id) FROM '/Users/carsonweinand/Desktop/Hack_Reactor/SDC/price-service/database/reviews/postgres-reviews-seed${file}.csv' WITH (FORMAT CSV, HEADER true, DELIMITER ',');`
+//       );
+//     }
 
-//   console.log(" -- postgres reviews seeding query end -- ");
-// });
+//     console.log(" -- postgres reviews seeding query end -- ");
+//   });
 // };
