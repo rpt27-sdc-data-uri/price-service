@@ -13,14 +13,17 @@ module.exports = (sequelize) => {
         autoIncrement: true,
       },
       book_title: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(50),
+        allowNull: false,
       },
       price: {
-        type: DataTypes.FLOAT,
+        type: DataTypes.DECIMAL(6, 2),
+        allowNull: false,
       },
     },
     {
       timestamps: false,
+      tableName: "postgresseed",
     }
   );
 };

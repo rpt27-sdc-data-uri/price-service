@@ -58,6 +58,7 @@ app.get("/api/price/:bookId", (req, res) => {
 
   db.findBookId(Price.Price, bookId)
     .then((book) => {
+      console.log("book.dataValues", book.dataValues);
       res.send(JSON.stringify(book.dataValues));
       console.log("app.get successful");
     })
