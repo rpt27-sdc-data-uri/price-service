@@ -2,12 +2,14 @@ import React from "react";
 
 import Membership from "./components/Membership.jsx";
 import PriceButton from "./components/PriceButton.jsx";
+import Reviews from "./components/Reviews.jsx";
 
 class App extends React.Component {
   constructor(props) {
     super();
     this.state = {
       currentBook: {},
+      reviews: [],
     };
   }
 
@@ -23,7 +25,7 @@ class App extends React.Component {
     }
   }
 
-  getPrice() {
+  getBook() {
     let params = document.location.search.substr(1).split("&");
 
     // split up parameters into tuples with [key, value] schema
@@ -36,10 +38,11 @@ class App extends React.Component {
       if (param[0] === "bookId" || param[0] === "bookTitle") {
         fetch(`http://localhost:3000/api/price/${param[1]}`)
           .then((response) => response.json())
-          .then((data) => {
-            console.log("== book data ==>", data);
+          .then((response) => {
+            console.log("== book data ==>", response);
             this.setState({
-              currentBook: data,
+              currentBook: response.book,
+              reviews: response.reviews,
             });
           })
           .catch((err) => {
@@ -54,7 +57,7 @@ class App extends React.Component {
 
   componentDidMount() {
     this.generateRandomBookByIdOrTitle();
-    this.getPrice();
+    this.getBook();
   }
 
   render() {
@@ -62,6 +65,10 @@ class App extends React.Component {
       <div id="app">
         <Membership />
         <PriceButton price={this.state.currentBook.price} />
+        <Reviews
+          reviews={this.state.reviews}
+          title={this.state.currentBook.book_title}
+        />
       </div>
     );
   }

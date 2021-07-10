@@ -2,7 +2,7 @@ const express = require("express");
 const morgan = require("morgan");
 const path = require("path");
 const compression = require("compression");
-const Price = require("../database/index.js");
+const Models = require("../database/index.js");
 const db = require("../database/methods/price.js");
 const app = express();
 const cors = require("cors");
@@ -41,7 +41,7 @@ app.get("/", (req, res) => {
 
 // CREATE
 app.post("/api/price/postNewBook", (req, res) => {
-  db.createNewBook(Price.Price)
+  db.createNewBook(Models.Price, Models.Reviews)
     .then((book) => {
       res.send(JSON.stringify(book.dataValues));
       console.log("app.post successful");
@@ -56,10 +56,12 @@ app.post("/api/price/postNewBook", (req, res) => {
 app.get("/api/price/:bookId", (req, res) => {
   const bookId = req.params.bookId;
 
-  db.findBookId(Price.Price, bookId)
-    .then((book) => {
-      console.log("book.dataValues", book.dataValues);
-      res.send(JSON.stringify(book.dataValues));
+  db.findBookId(Models.Price, Models.Reviews, bookId)
+    .then((data) => {
+      console.log("data.book", data.book);
+      console.log("data.reviews", data.reviews);
+      console.log("data", data);
+      res.json(data);
       console.log("app.get successful");
     })
     .catch((err) => {
@@ -72,7 +74,7 @@ app.get("/api/price/:bookId", (req, res) => {
 app.put("/api/price/:bookId", (req, res) => {
   const bookId = req.params.bookId;
 
-  db.updateBook(Price.Price, bookId)
+  db.updateBook(Models.Price, Models.Reviews, bookId)
     .then((numberUpdated) => {
       res.send(JSON.stringify(numberUpdated));
       console.log("app.put successful");
@@ -87,7 +89,7 @@ app.put("/api/price/:bookId", (req, res) => {
 app.delete("/api/price/:bookId", (req, res) => {
   const bookId = req.params.bookId;
 
-  db.deleteBook(Price.Price, bookId)
+  db.deleteBook(Models.Price, Models.Reviews, bookId)
     .then((result) => {
       res.sendStatus(200);
       console.log("app.delete successful");

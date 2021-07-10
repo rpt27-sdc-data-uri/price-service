@@ -65,20 +65,34 @@ const populateTitle = () => {
   return titleArr.join(" ");
 };
 
-const findBookId = async (Price, bookId) => {
-  const record = await Price.findByPk(bookId);
-  if (record === null) {
+const findBookId = async (Price, Reviews, bookId) => {
+  let data = { book: null, reviews: [] };
+
+  const book = await Price.findByPk(bookId);
+  if (book === null) {
     console.log(`== find book id for ${bookId} not found!`);
     return null;
   } else {
-    return record;
+    data.book = book.dataValues;
   }
+
+  const reviews = await Reviews.findAll({ where: { book_id: bookId } });
+  if (reviews === null) {
+    console.log(`== find book id for ${bookId} not found!`);
+    return null;
+  } else {
+    reviews.forEach((review) => {
+      data.reviews.push(review.dataValues);
+    });
+  }
+
+  return data;
 };
 
 const createNewBook = async (Price) => {
   const record = await Price.create({
     book_title: faker.lorem.words(),
-    price: faker.datatype.float(),
+    price: faker.datatype.float({ min: 1000, max: 9999 }),
   });
   if (!record) {
     console.log(`== ${bookId} not created!`);
@@ -92,7 +106,7 @@ const updateBook = async (Price, bookId) => {
   const record = await Price.update(
     {
       book_title: faker.lorem.words(),
-      price: faker.datatype.float(),
+      price: faker.datatype.float({ min: 1000, max: 9999 }),
     },
     { where: { book_id: bookId } }
   );
