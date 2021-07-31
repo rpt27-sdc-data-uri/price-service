@@ -1,3 +1,4 @@
+const newrelic = require("newrelic");
 // initialize and export connection to mysql database
 const { Sequelize } = require("sequelize");
 // const mysql = require("mysql2/promise");
@@ -5,7 +6,7 @@ const pg = require("pg");
 const methods = require("./methods/price.js");
 require("dotenv").config();
 
-let db = {};
+let Models = {};
 
 const init = async () => {
   // ------>>> establish Mysql connection to localhost
@@ -24,7 +25,8 @@ const init = async () => {
 
   // ----->>> establish Psql connection to localhost
   const sequelize = new Sequelize(
-    "postgresql://carsonweinand@localhost:5432/sdc"
+    "postgresql://carsonweinand@localhost:5432/sdc",
+    { logging: false }
   );
   try {
     await sequelize.authenticate();
@@ -54,7 +56,8 @@ const init = async () => {
 
   // db.sequelize = sequelize;
 
-  db.Price = require("./Models/Price.js")(sequelize);
+  Models.Price = require("./Models/Price.js")(sequelize);
+  Models.Reviews = require("./Models/Reviews.js")(sequelize);
 
   // await sequelize.sync();
 
@@ -62,4 +65,4 @@ const init = async () => {
 };
 
 init();
-module.exports = db;
+module.exports = Models;

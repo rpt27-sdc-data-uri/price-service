@@ -1,13 +1,16 @@
+// const newrelic = require("newrelic");
 const express = require("express");
+const app = express();
 const morgan = require("morgan");
 const path = require("path");
 const compression = require("compression");
-const Price = require("../database/index.js");
+const Models = require("../database/index.js");
 const db = require("../database/methods/price.js");
-const app = express();
 const cors = require("cors");
-const port = 3000;
 const faker = require("faker");
+const port = 3001;
+const redis = require("redis");
+const client = redis.createClient();
 
 // const whiteList = [
 //   "http://54.183.2.218",
@@ -33,15 +36,19 @@ const faker = require("faker");
 app.use(cors());
 app.use(compression());
 app.use(express.static(path.join(__dirname, "..", "/public")));
-app.use(morgan("dev"));
+// app.use(morgan("dev"));
 
 app.get("/", (req, res) => {
   res.end();
 });
 
+client.on("error", function (error) {
+  console.log("redis error", error);
+});
+
 // CREATE
 app.post("/api/price/postNewBook", (req, res) => {
-  db.createNewBook(Price.Price)
+  db.createNewBook(Models.Price, Models.Reviews)
     .then((book) => {
       res.send(JSON.stringify(book.dataValues));
       console.log("app.post successful");
@@ -56,23 +63,31 @@ app.post("/api/price/postNewBook", (req, res) => {
 app.get("/api/price/:bookId", (req, res) => {
   const bookId = req.params.bookId;
 
-  db.findBookId(Price.Price, bookId)
-    .then((book) => {
-      console.log("book.dataValues", book.dataValues);
-      res.send(JSON.stringify(book.dataValues));
-      console.log("app.get successful");
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(404).send("failed to find resource");
-    });
+  client.get(bookId, (err, result) => {
+    if (result) {
+      const resultJSON = JSON.parse(result);
+      console.log("====== CACHED ======");
+      res.status(200).json(resultJSON);
+    } else {
+      db.findBookId(Models.Price, Models.Reviews, bookId)
+        .then((data) => {
+          client.set(bookId, JSON.stringify(data), "EX", 60 * 60 * 24);
+          res.json(data);
+          console.log("database");
+        })
+        .catch((err) => {
+          console.error(err);
+          res.status(404).send("failed to find resource");
+        });
+    }
+  });
 });
 
 // UPDATE
 app.put("/api/price/:bookId", (req, res) => {
   const bookId = req.params.bookId;
 
-  db.updateBook(Price.Price, bookId)
+  db.updateBook(Models.Price, Models.Reviews, bookId)
     .then((numberUpdated) => {
       res.send(JSON.stringify(numberUpdated));
       console.log("app.put successful");
@@ -87,7 +102,7 @@ app.put("/api/price/:bookId", (req, res) => {
 app.delete("/api/price/:bookId", (req, res) => {
   const bookId = req.params.bookId;
 
-  db.deleteBook(Price.Price, bookId)
+  db.deleteBook(Models.Price, Models.Reviews, bookId)
     .then((result) => {
       res.sendStatus(200);
       console.log("app.delete successful");
