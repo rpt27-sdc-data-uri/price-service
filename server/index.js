@@ -1,13 +1,16 @@
+// const newrelic = require("newrelic");
 const express = require("express");
+const app = express();
 const morgan = require("morgan");
 const path = require("path");
 const compression = require("compression");
 const Models = require("../database/index.js");
 const db = require("../database/methods/price.js");
-const app = express();
 const cors = require("cors");
-const port = 3000;
 const faker = require("faker");
+const port = 3001;
+const redis = require("redis");
+const client = redis.createClient();
 
 // const whiteList = [
 //   "http://54.183.2.218",
@@ -33,10 +36,14 @@ const faker = require("faker");
 app.use(cors());
 app.use(compression());
 app.use(express.static(path.join(__dirname, "..", "/public")));
-app.use(morgan("dev"));
+// app.use(morgan("dev"));
 
 app.get("/", (req, res) => {
   res.end();
+});
+
+client.on("error", function (error) {
+  console.log("redis error", error);
 });
 
 // CREATE
@@ -56,18 +63,24 @@ app.post("/api/price/postNewBook", (req, res) => {
 app.get("/api/price/:bookId", (req, res) => {
   const bookId = req.params.bookId;
 
-  db.findBookId(Models.Price, Models.Reviews, bookId)
-    .then((data) => {
-      console.log("data.book", data.book);
-      console.log("data.reviews", data.reviews);
-      console.log("data", data);
-      res.json(data);
-      console.log("app.get successful");
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(404).send("failed to find resource");
-    });
+  client.get(bookId, (err, result) => {
+    if (result) {
+      const resultJSON = JSON.parse(result);
+      console.log("====== CACHED ======");
+      res.status(200).json(resultJSON);
+    } else {
+      db.findBookId(Models.Price, Models.Reviews, bookId)
+        .then((data) => {
+          client.set(bookId, JSON.stringify(data), "EX", 60 * 60 * 24);
+          res.json(data);
+          console.log("database");
+        })
+        .catch((err) => {
+          console.error(err);
+          res.status(404).send("failed to find resource");
+        });
+    }
+  });
 });
 
 // UPDATE

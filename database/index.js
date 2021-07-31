@@ -1,3 +1,4 @@
+const newrelic = require("newrelic");
 // initialize and export connection to mysql database
 const { Sequelize } = require("sequelize");
 // const mysql = require("mysql2/promise");
@@ -24,7 +25,8 @@ const init = async () => {
 
   // ----->>> establish Psql connection to localhost
   const sequelize = new Sequelize(
-    "postgresql://carsonweinand@localhost:5432/sdc"
+    "postgresql://carsonweinand@localhost:5432/sdc",
+    { logging: false }
   );
   try {
     await sequelize.authenticate();

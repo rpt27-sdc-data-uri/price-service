@@ -1,6 +1,6 @@
 // ===== GLOBAL ======
 body {
-  // background-color: darkslategrey;
+  background-color: darkslategrey;
   overflow: scroll;
 }
 
@@ -109,6 +109,41 @@ body {
 #bookBuy:focus {
   border: none;
   outline: none;
+}
+
+// ===== Reviews =====
+.reviews-container {
+  margin: 10px 0px;
+  border: 1px solid orange;
+  border-radius: 5px;
+}
+
+.reviews {
+  margin: 10px;
+}
+
+#reviews-title {
+  font: 24px Helvetica;
+  font-weight: 800;
+  color: orange;
+}
+
+.review {
+  margin: 10px 0px;
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  grid-gap: 10px;
+}
+
+.review_text {
+  font: 12px Helvetica;
+  color: #c2bcbc;
+}
+
+.rating {
+  font: 12px Helvetica;
+  color: orange;
+  font-weight: 800;
 }
 
 // ===== MEDIA QUERIES =====
