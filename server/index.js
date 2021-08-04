@@ -1,24 +1,32 @@
 // const newrelic = require("newrelic");
 const express = require("express");
+const port = 3001;
+
+const fs = require("fs");
 const morgan = require("morgan");
 const path = require("path");
 const compression = require("compression");
-const Models = require("../database/index.js");
-const db = require("../database/methods/price.js");
 const cors = require("cors");
 const faker = require("faker");
-const port = 3001;
+
 const redis = require("redis");
 const client = redis.createClient();
+
 const cluster = require("cluster");
 const numCPUs = require("os").cpus().length;
 const process = require("process");
+
+const React = require("react");
+const ReactDOMServer = require("react-dom/server");
+
+const Models = require("../database/index.js");
+const db = require("../database/methods/price.js");
+const App = require("../client/app.jsx");
 
 if (cluster.isMaster) {
   console.log(`Number of CPUs is ${numCPUs}`);
   console.log(`Master ${process.pid} is running`);
 
-  // create a worker for each CPU
   for (let i = 0; i < numCPUs; i++) {
     cluster.fork();
   }
@@ -37,11 +45,55 @@ if (cluster.isMaster) {
   app.use(cors());
   app.use(compression());
   app.use(express.static(path.join(__dirname, "..", "/public")));
-  // app.use(morgan("dev"));
+  app.use(morgan("dev"));
 
-  app.get("/", (req, res) => {
-    res.end();
-  });
+  ///// DESERTED SSR CODE //////
+
+  // app.use("*", (req, res) => {
+  //   let indexHTML = fs.readFileSync(
+  //     path.resolve(__dirname, "../public/index.html"),
+  //     {
+  //       encoding: "utf8",
+  //     }
+  //   );
+
+  //   let appHTML = ReactDOMServer.renderToString(<App />);
+
+  //   indexHTML = indexHTML.replace(
+  //     '<div id="price-service"></div>',
+  //     `<div id="price-service">${appHTML}</div>`
+  //   );
+
+  //   res.contentType("text/html");
+  //   res.status(200);
+
+  //   return res.send(indexHTML);
+  // });
+
+  ///// DESERTED SSR CODE //////
+
+  // app.get("/", (req, res) => {
+  //   const component = ReactDOMServer.renderToString(<App />);
+  //   const html = `<!DOCTYPE html>
+  //   <html>
+  //     <head>
+  //       <title>Audible-ssr</title>
+  //       <style>
+  //         body {
+  //           background-color: darkblue;
+  //         }
+  //       </style>
+  //       <!-- <link rel='stylesheet' href='styles.css'> -->
+  //       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  //     <script defer src="priceBundle.js"></script></head>
+  //     <body>
+  //       <div id="price-service">${component}</div>
+  //       <script src="priceBundle.js"></script>
+  //     </body>
+  //   </html>`;
+
+  //   res.send(html);
+  // });
 
   client.on("error", function (error) {
     console.log("redis error", error);
