@@ -3,7 +3,10 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
-  entry: path.resolve(__dirname, "/client/index.js"),
+  entry:
+    "development" === process.env.NODE_ENV
+      ? path.resolve(__dirname, "/client/index.dev.js")
+      : path.resolve(__dirname, "/client/index.prod.js"),
   module: {
     rules: [
       {
@@ -43,6 +46,6 @@ module.exports = {
     filename: "priceBundle.js",
     path: path.resolve(__dirname, "public"),
   },
-  mode: "development",
+  mode: "development" === process.env.NODE_ENV ? "development" : "production",
   devtool: "source-map",
 };
