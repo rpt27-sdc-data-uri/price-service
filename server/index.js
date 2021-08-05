@@ -1,7 +1,10 @@
 // const newrelic = require("newrelic");
+
+// express
 const express = require("express");
 const port = 3001;
 
+// utils
 const fs = require("fs");
 const morgan = require("morgan");
 const path = require("path");
@@ -9,16 +12,18 @@ const compression = require("compression");
 const cors = require("cors");
 const faker = require("faker");
 
+// cache
 const redis = require("redis");
 const client = redis.createClient();
 
+// clustering
 const cluster = require("cluster");
 const numCPUs = require("os").cpus().length;
 const process = require("process");
 
+// trying to implement SSR
 const React = require("react");
 const ReactDOMServer = require("react-dom/server");
-
 const Models = require("../database/index.js");
 const db = require("../database/methods/price.js");
 const App = require("../client/app.jsx");
