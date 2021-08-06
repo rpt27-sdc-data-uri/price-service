@@ -3,94 +3,14 @@ const faker = require("faker");
 const csvWriter = require("csv-write-stream");
 const writer = csvWriter();
 const pg = require("pg");
-const mongoose = require("mongoose");
 
-mongoose.connect("mongodb://localhost/sdc", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+const currentDirectory = process.cwd();
 
-const connection = mongoose.connection;
-
-const mongoBookSchema = new mongoose.Schema({
-  book_id: { type: String, unique: true },
-  book_title: String,
-  price: Number,
-});
-
-const mongoReviewSchema = new mongoose.Schema({
-  review_id: { type: String },
-  review_text: String,
-  rating: Number,
-  book_id: String,
-});
-
-const Book = mongoose.model("Book", mongoBookSchema);
-const Review = mongoose.model("Review", mongoReviewSchema);
-
-module.exports.seedMongoBooks = () => {
-  console.log(" -- mongo seeding started -- ");
-  let increment = 500000;
-  let start = 0;
-  let end = 500000;
-
-  const createMongoBooks = async (start, end) => {
-    if (end <= 10000000) {
-      for (var j = start; j < end; j++) {
-        const newBook = new Book({
-          book_id: j,
-          book_title: faker.lorem.words(),
-          price: faker.datatype.float({
-            min: 1000,
-            max: 9999,
-          }),
-        });
-        const saved = await newBook.save();
-      }
-      start = end + 1;
-      end = end + increment;
-      createMongoBooks(start, end);
-    } else {
-      return;
-    }
-  };
-
-  createMongoBooks(start, end);
-  console.log(" -- mongo seeding ended -- ");
-};
-
-module.exports.seedMongoReviews = async () => {
-  let reviewId = 0;
-  let bookStart = 9500000;
-  let bookEnd = 10000000;
-
-  console.log(" -- mongo reviews started -- ");
-  let reviews = [];
-
-  for (let i = bookStart; i < bookEnd; i++) {
-    let numberOfReviews = Math.floor(Math.random() * 10) + 1;
-
-    for (let r = 0; r < numberOfReviews; r++) {
-      let review = {
-        insertOne: {
-          review_id: reviewId,
-          review_text: faker.lorem.paragraph(),
-          rating: faker.datatype.number({
-            min: 1,
-            max: 5,
-          }),
-          book_id: i,
-        },
-      };
-      reviews.push(review);
-      reviewId++;
-    }
-  }
-
-  const bulk = await Review.collection.bulkWrite(reviews);
-
-  console.log(" -- mongo reviews added -- ");
-  connection.close;
+module.exports.variables = {
+  reviewId: 50,
+  bookStart: 10,
+  bookEnd: 20,
+  csvNum: 2,
 };
 
 ///// POSTGRES //////
@@ -104,12 +24,13 @@ postgres.connect((err) => {
 });
 
 module.exports.seedPostgresBooks = () => {
-  console.log(" -- postgres books csv writeStream started -- ");
+  console.log(" -- postgres books create csv started -- ");
 
-  const createCsvFile = async () => {
-    writer.pipe(fs.createWriteStream("./reviews/postgres-books-seed.csv"));
+  const createCsvFile = () => {
+    writer.pipe(fs.createWriteStream(`./books.csv`));
 
-    for (var i = 0; i < 10000000; i++) {
+    for (var i = 1; i <= 10000000; i++) {
+      console.log("id", i);
       writer.write({
         book_id: i,
         book_title: faker.lorem.words(),
@@ -121,70 +42,193 @@ module.exports.seedPostgresBooks = () => {
     }
 
     writer.end();
-    console.log(" -- postgres books csv writeStream done -- ");
+    console.log(" -- postgres books create csv done -- ");
   };
 
-  createCsvFile()
-    .then(async () => {
-      console.log(" -- postgres books seeding query started -- ");
-
-      const seeded = await postgres.query(
-        "COPY postgresseed (book_id, book_title, price) FROM '/Users/carsonweinand/Desktop/Hack_Reactor/SDC/price-service/postgres-books-seed.csv' WITH (FORMAT CSV, HEADER true, DELIMITER ',');"
-      );
-
-      console.log(" -- postgres books seeding query end -- ");
+  return new Promise((resolve, reject) => {
+    resolve(createCsvFile());
+  })
+    .then(() => {
+      return this.seedPostgresSaveCSV("test", "books");
     })
-    .catch((err) => {
-      console.log("seeding failed", err);
+    .then((value) => {
+      console.log(
+        " -- postgres save csv query query end --",
+        value.command,
+        "-",
+        value.rowCount
+      );
+    })
+    .catch((error) => {
+      console.log("database seeding", error);
     });
 };
 
-module.exports.seedPostgresReviews = () => {
-  let reviewId = 49561006;
-  let bookStart = 9000000;
-  let bookEnd = 10000000;
+module.exports.seedPostgresSaveCSV = async (table, csvFile) => {
+  if (table === "books") {
+    console.log(" -- postgres save books csv started -- ");
 
-  const createCsvFile = async () => {
-    console.log(`-- postgres reviews csv writeStream started -- `);
-
-    writer.pipe(fs.createWriteStream(`postgres-reviews-seed-11.csv`));
-
-    for (var i = bookStart; i < bookEnd; i++) {
-      let numberOfReviews = Math.floor(Math.random() * 10) + 1;
-
-      for (var r = 0; r < numberOfReviews; r++) {
-        console.log("reviewId", reviewId);
-        writer.write({
-          review_id: reviewId++,
-          review_text: faker.lorem.paragraph(),
-          rating: faker.datatype.number({
-            min: 1,
-            max: 5,
-          }),
-          book_id: i,
-        });
-      }
-    }
-
-    writer.end();
-    console.log(" -- postgres reviews csv writeStream end -- ");
-  };
-
-  createCsvFile().then(async () => {
-    console.log(" -- postgres reviews seeding query started -- ");
-
-    const seeded = await postgres.query(
-      `COPY postgresseedreviews (review_id, review_text, rating, book_id) FROM '/Users/carsonweinand/Desktop/Hack_Reactor/SDC/price-service/postgres-reviews-seed-11.csv' WITH (FORMAT CSV, HEADER true, DELIMITER ',');`
+    const booksTable = await postgres.query(
+      `COPY ${table} (book_id, book_title, price) FROM '${currentDirectory}/${csvFile}.csv' WITH (FORMAT CSV, HEADER true, DELIMITER ',');`
     );
 
-    await postgres.end();
-    console.log(" -- postgres reviews seeding query end -- ");
-  });
+    return booksTable;
+  } else if (table === "reviewstest") {
+    try {
+      console.log(" -- postgres save reviews csv started -- ");
+
+      const reviewsTable = await postgres.query(
+        `COPY ${table} (review_id, review_text, rating, book_id) FROM '${currentDirectory}/${csvFile}.csv' WITH (FORMAT CSV, HEADER true, DELIMITER ',');`
+      );
+
+      return reviewsTable;
+    } catch (error) {
+      console.log("reviews save err", error);
+    }
+  }
+};
+
+module.exports.seedPostgresReviews = () => {
+  console.log(`-- postgres reviews csv writeStream started -- `);
+
+  return new Promise((resolve, reject) => {
+    resolve(this.createReviewsCsvFile());
+  })
+
+    .then(() => {
+      console.log(`reviews ${this.variables.csvNum} resolved`);
+    })
+    .catch((err) => {
+      console.log("reviews err", err);
+    });
+};
+
+module.exports.createReviewsCsvFile = () => {
+  writer.pipe(fs.createWriteStream(`./reviews${this.variables.csvNum}.csv`));
+
+  for (var i = this.variables.bookStart; i < this.variables.bookEnd; i++) {
+    let numberOfReviews = Math.floor(Math.random() * 10) + 1;
+
+    for (var r = 0; r < numberOfReviews; r++) {
+      console.log("reviewId", this.variables.reviewId);
+      writer.write({
+        review_id: this.variables.reviewId++,
+        review_text: faker.lorem.paragraph(),
+        rating: faker.datatype.number({
+          min: 1,
+          max: 5,
+        }),
+        book_id: i,
+      });
+    }
+  }
+
+  writer.end();
+  console.log(" -- postgres reviews csv writeStream end -- ");
+};
+
+module.exports.automateReviewsSave = () => {
+  let file = 1;
+  while (file <= this.variables.csvNum) {
+    this.seedPostgresSaveCSV("reviewstest", `reviews${file}`);
+    file++;
+  }
 };
 
 require("make-runnable");
 
-// <----- failed recursive reviews script ---->
+// <-------! Mongo seeding code !------->
+// const mongoose = require("mongoose");
+
+// mongoose.connect("mongodb://localhost/sdc", {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+// });
+
+// const connection = mongoose.connection;
+
+// const mongoBookSchema = new mongoose.Schema({
+//   book_id: { type: String, unique: true },
+//   book_title: String,
+//   price: Number,
+// });
+
+// const mongoReviewSchema = new mongoose.Schema({
+//   review_id: { type: String },
+//   review_text: String,
+//   rating: Number,
+//   book_id: String,
+// });
+
+// const Book = mongoose.model("Book", mongoBookSchema);
+// const Review = mongoose.model("Review", mongoReviewSchema);
+
+// module.exports.seedMongoBooks = () => {
+//   console.log(" -- mongo seeding started -- ");
+//   let increment = 500000;
+//   let start = 0;
+//   let end = 500000;
+
+//   const createMongoBooks = async (start, end) => {
+//     if (end <= 10000000) {
+//       for (var j = start; j < end; j++) {
+//         const newBook = new Book({
+//           book_id: j,
+//           book_title: faker.lorem.words(),
+//           price: faker.datatype.float({
+//             min: 1000,
+//             max: 9999,
+//           }),
+//         });
+//         const saved = await newBook.save();
+//       }
+//       start = end + 1;
+//       end = end + increment;
+//       createMongoBooks(start, end);
+//     } else {
+//       return;
+//     }
+//   };
+
+//   createMongoBooks(start, end);
+//   console.log(" -- mongo seeding ended -- ");
+// };
+
+// module.exports.seedMongoReviews = async () => {
+//   let reviewId = 0;
+//   let bookStart = 9500000;
+//   let bookEnd = 10000000;
+
+//   console.log(" -- mongo reviews started -- ");
+//   let reviews = [];
+
+//   for (let i = bookStart; i < bookEnd; i++) {
+//     let numberOfReviews = Math.floor(Math.random() * 10) + 1;
+
+//     for (let r = 0; r < numberOfReviews; r++) {
+//       let review = {
+//         insertOne: {
+//           review_id: reviewId,
+//           review_text: faker.lorem.paragraph(),
+//           rating: faker.datatype.number({
+//             min: 1,
+//             max: 5,
+//           }),
+//           book_id: i,
+//         },
+//       };
+//       reviews.push(review);
+//       reviewId++;
+//     }
+//   }
+
+//   const bulk = await Review.collection.bulkWrite(reviews);
+
+//   console.log(" -- mongo reviews added -- ");
+//   connection.close;
+// };
+
+// <-----! failed recursive reviews script !---->
 // module.exports.seedPostgresReviews = () => {
 //   let fileNum = 1;
 //   let reviewId = 0;

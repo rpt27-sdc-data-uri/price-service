@@ -5,5 +5,5 @@ import App from "./app.jsx";
 import "./assets/styles.scss";
 import "./assets/checkmark.png";
 
-ReactDOM.render(<App />, document.getElementById("price-service"));
-// ReactDOM.hydrate(<App />, document.getElementById("price-service"));
+//ReactDOM.render(<App />, document.getElementById("price-service"));
+ReactDOM.hydrate(<App />, document.getElementById("price-service"));
