@@ -7,10 +7,10 @@ const pg = require("pg");
 const currentDirectory = process.cwd();
 
 module.exports.variables = {
-  reviewId: 50,
-  bookStart: 10,
-  bookEnd: 20,
-  csvNum: 2,
+  reviewId: 1,
+  bookStart: 1,
+  bookEnd: 500000,
+  csvNum: 1,
 };
 
 ///// POSTGRES //////
@@ -49,7 +49,7 @@ module.exports.seedPostgresBooks = () => {
     resolve(createCsvFile());
   })
     .then(() => {
-      return this.seedPostgresSaveCSV("test", "books");
+      return this.seedPostgresSaveCSV("books", "books");
     })
     .then((value) => {
       console.log(
@@ -73,7 +73,7 @@ module.exports.seedPostgresSaveCSV = async (table, csvFile) => {
     );
 
     return booksTable;
-  } else if (table === "reviewstest") {
+  } else if (table === "reviews") {
     try {
       console.log(" -- postgres save reviews csv started -- ");
 
@@ -97,6 +97,7 @@ module.exports.seedPostgresReviews = () => {
 
     .then(() => {
       console.log(`reviews ${this.variables.csvNum} resolved`);
+      this.seedPostgresSaveCSV("reviews", `reviews${this.variables.csvNum}`);
     })
     .catch((err) => {
       console.log("reviews err", err);
@@ -125,14 +126,6 @@ module.exports.createReviewsCsvFile = () => {
 
   writer.end();
   console.log(" -- postgres reviews csv writeStream end -- ");
-};
-
-module.exports.automateReviewsSave = () => {
-  let file = 1;
-  while (file <= this.variables.csvNum) {
-    this.seedPostgresSaveCSV("reviewstest", `reviews${file}`);
-    file++;
-  }
 };
 
 require("make-runnable");
