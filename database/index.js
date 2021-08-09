@@ -24,10 +24,22 @@ const init = async () => {
   // });
 
   // ----->>> establish Psql connection to localhost
+  // const sequelize = new Sequelize(
+  //   "postgresql://carsonweinand@localhost:5432/sdc",
+  //   { logging: false }
+  // );
+
   const sequelize = new Sequelize(
-    "postgresql://carsonweinand@localhost:5432/sdc",
-    { logging: false }
+    "sdc",
+    process.env.PSQL_USER,
+    process.env.PSQL_PW,
+    {
+      host: "localhost",
+      dialect: "postgres",
+      logging: false,
+    }
   );
+
   try {
     await sequelize.authenticate();
     console.log("Postgres connection has been established successfully.");

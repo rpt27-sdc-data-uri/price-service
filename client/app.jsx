@@ -50,6 +50,9 @@ class App extends React.Component {
               `Failed to fetch price data for bookId ${param[1]}`,
               err
             );
+            this.setState({
+              currentBook: [],
+            });
           });
       }
     }
