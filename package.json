@@ -13,8 +13,8 @@
     ]
   },
   "scripts": {
-    "server-dev": "cross-env NODE_ENV=development nodemon server/main.js",
-    "server-prod": "cross-env NODE_ENV=production node server/main.js",
+    "server-dev": "cross-env NODE_ENV=development PSQL_USER=postgres PSQL_PW=sdc nodemon server/main.js",
+    "server-prod": "cross-env NODE_ENV=production PSQL_USER=postgres PSQL_PW=sdc node server/main.js",
     "react-dev": "cross-env NODE_ENV=development webpack --watch",
     "react-prod": "cross-env NODE_ENV=production webpack",
     "sass-dev": "sass --watch client/assets/styles.scss public/styles.css",
@@ -23,8 +23,6 @@
     "commit": "git commit",
     "lint": "eslint . --ext .js,.jsx",
     "precommit": "npm run test",
-    "mongo-books": "node --max-old-space-size=8192 database/seeding.js seedMongoBooks",
-    "mongo-reviews": "node --max-old-space-size=8192 database/seeding.js seedMongoReviews",
     "seedPostgresBooks": "node --max-old-space-size=8192 database/seeding.js seedPostgresBooks",
     "seedPostgresReviews": "node --max-old-space-size=8192 database/seeding.js seedPostgresReviews",
     "seedPostgresReviewsSave": "node --max-old-space-size=8192 database/seeding.js automateReviewsSave"

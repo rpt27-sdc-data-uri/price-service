@@ -10,7 +10,6 @@ const morgan = require("morgan");
 const path = require("path");
 const compression = require("compression");
 const cors = require("cors");
-const faker = require("faker");
 
 // cache
 const redis = require("redis");
@@ -54,7 +53,7 @@ if (cluster.isMaster) {
 
   ///// DESERTED SSR CODE //////
 
-  // app.use("*", (req, res) => {
+  // app.use("*", (req, res, next) => {
   //   let indexHTML = fs.readFileSync(
   //     path.resolve(__dirname, "../public/index.html"),
   //     {
@@ -62,7 +61,7 @@ if (cluster.isMaster) {
   //     }
   //   );
 
-  //   let appHTML = ReactDOMServer.renderToString(<App />);
+  //   let appHTML = ReactDOMServer.renderToString(App);
 
   //   indexHTML = indexHTML.replace(
   //     '<div id="price-service"></div>',
@@ -71,6 +70,7 @@ if (cluster.isMaster) {
 
   //   res.contentType("text/html");
   //   res.status(200);
+  //   next();
 
   //   return res.send(indexHTML);
   // });
@@ -134,7 +134,7 @@ if (cluster.isMaster) {
             res.json(data);
           })
           .catch((err) => {
-            console.error(err);
+            console.error("get error", err);
             res.status(404).send("failed to find resource");
           });
       }

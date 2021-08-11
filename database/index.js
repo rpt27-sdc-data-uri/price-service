@@ -24,10 +24,22 @@ const init = async () => {
   // });
 
   // ----->>> establish Psql connection to localhost
+  // const sequelize = new Sequelize(
+  //   "postgresql://carsonweinand@localhost:5432/sdc",
+  //   { logging: false }
+  // );
+
   const sequelize = new Sequelize(
-    "postgresql://carsonweinand@localhost:5432/sdc",
-    { logging: false }
+    "sdc",
+    process.env.PSQL_USER, // for ec2 = postgres
+    process.env.PSQL_PW, // for ec2 = sdc
+    {
+      host: "localhost", // for ec2 = 3.129.19.227/
+      dialect: "postgres", // port = 5432
+      logging: false,
+    }
   );
+
   try {
     await sequelize.authenticate();
     console.log("Postgres connection has been established successfully.");
@@ -59,7 +71,7 @@ const init = async () => {
   Models.Price = require("./Models/Price.js")(sequelize);
   Models.Reviews = require("./Models/Reviews.js")(sequelize);
 
-  // await sequelize.sync();
+  await sequelize.sync();
 
   // methods.init(sequelize, db.Price);
 };
