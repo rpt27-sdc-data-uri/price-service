@@ -31,11 +31,11 @@ const init = async () => {
 
   const sequelize = new Sequelize(
     "sdc",
-    process.env.PSQL_USER,
-    process.env.PSQL_PW,
+    process.env.PSQL_USER, // for ec2 = postgres
+    process.env.PSQL_PW, // for ec2 = sdc
     {
-      host: "localhost",
-      dialect: "postgres",
+      host: "localhost", // for ec2 = 3.129.19.227/
+      dialect: "postgres", // port = 5432
       logging: false,
     }
   );
@@ -71,7 +71,7 @@ const init = async () => {
   Models.Price = require("./Models/Price.js")(sequelize);
   Models.Reviews = require("./Models/Reviews.js")(sequelize);
 
-  // await sequelize.sync();
+  await sequelize.sync();
 
   // methods.init(sequelize, db.Price);
 };

@@ -70,7 +70,7 @@ const findBookId = async (Price, Reviews, bookId) => {
 
   const book = await Price.findByPk(bookId);
   if (book === null) {
-    console.log(`== find book id for ${bookId} not found!`);
+    console.log(`== find book id ${bookId} for books / price not found!`);
     return null;
   } else {
     data.book = book.dataValues;
@@ -78,7 +78,7 @@ const findBookId = async (Price, Reviews, bookId) => {
 
   const reviews = await Reviews.findAll({ where: { book_id: bookId } });
   if (reviews === null) {
-    console.log(`== find book id for ${bookId} not found!`);
+    console.log(`== find book id ${bookId} for reviews not found!`);
     return null;
   } else {
     reviews.forEach((review) => {

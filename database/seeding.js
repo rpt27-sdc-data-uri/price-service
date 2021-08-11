@@ -58,6 +58,7 @@ module.exports.seedPostgresBooks = () => {
         "-",
         value.rowCount
       );
+      postgres.end();
     })
     .catch((error) => {
       console.log("database seeding", error);

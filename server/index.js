@@ -121,7 +121,6 @@ if (cluster.isMaster) {
   app.get("/api/price/:bookId", (req, res) => {
     const bookId = req.params.bookId;
 
-    console.log("APP GET");
     client.get(bookId, (err, result) => {
       if (result) {
         const resultJSON = JSON.parse(result);
