@@ -13,8 +13,12 @@ const cors = require("cors");
 const faker = require("faker");
 
 // cache
+ const redisConfig = { 
+   host: "127.0.0.1",
+   port: 6379,
+ };
 const redis = require("redis");
-const client = redis.createClient();
+const client = redis.createClient(redisConfig);
 
 // clustering
 const cluster = require("cluster");

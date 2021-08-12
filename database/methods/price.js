@@ -8,6 +8,7 @@ const init = async (sequelize, Price) => {
   for (let i = 0; i < 100; i++) {
     const price = populatePrice();
     const title = populateTitle();
+    console.log("db init ------");
     await Price.create({
       book_id: i,
       book_title: title,
@@ -70,16 +71,16 @@ const findBookId = async (Price, Reviews, bookId) => {
 
   const book = await Price.findByPk(bookId);
   if (book === null) {
-    console.log(`== find book id for ${bookId} not found!`);
-    return null;
+    console.log(`== find book id ${bookId} in books table not found!`);
+    data.book =  "not found";
   } else {
     data.book = book.dataValues;
   }
 
   const reviews = await Reviews.findAll({ where: { book_id: bookId } });
   if (reviews === null) {
-    console.log(`== find book id for ${bookId} not found!`);
-    return null;
+    console.log(`== find book id ${bookId} in reviews table not found!`);
+    data.reviews = [];
   } else {
     reviews.forEach((review) => {
       data.reviews.push(review.dataValues);

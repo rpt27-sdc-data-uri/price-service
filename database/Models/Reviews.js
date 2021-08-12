@@ -23,14 +23,14 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: "postgresseed",
+          model: "books",
           key: "book_id",
         },
       },
     },
     {
       timestamps: false,
-      tableName: "postgresseedreviews",
+      tableName: "reviews",
     }
   );
 

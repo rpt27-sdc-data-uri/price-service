@@ -8,13 +8,19 @@ const currentDirectory = process.cwd();
 
 module.exports.variables = {
   reviewId: 1,
-  bookStart: 1,
-  bookEnd: 500000,
+  bookStart: 9900001,
+  bookEnd: 10000000,
   csvNum: 1,
 };
 
 ///// POSTGRES //////
-const postgres = new pg.Client("postgresql://carsonweinand@localhost:5432/sdc");
+const postgres = new pg.Client({
+  user: process.env.PSQL_USER,
+  host: '127.0.0.1',
+  database: 'sdc',
+  password: process.env.PSQL_PW,
+});
+
 postgres.connect((err) => {
   if (err) {
     console.error("pg connection error", err.stack);
@@ -29,7 +35,7 @@ module.exports.seedPostgresBooks = () => {
   const createCsvFile = () => {
     writer.pipe(fs.createWriteStream(`./books.csv`));
 
-    for (var i = 1; i <= 10000000; i++) {
+    for (var i = 9100000; i <= 10000000; i++) {
       console.log("id", i);
       writer.write({
         book_id: i,
@@ -48,40 +54,40 @@ module.exports.seedPostgresBooks = () => {
   return new Promise((resolve, reject) => {
     resolve(createCsvFile());
   })
-    .then(() => {
-      return this.seedPostgresSaveCSV("books", "books");
-    })
-    .then((value) => {
-      console.log(
-        " -- postgres save csv query query end --",
-        value.command,
-        "-",
-        value.rowCount
-      );
-    })
-    .catch((error) => {
+      .then(() => {
+     console.log("csv file creation complete");
+  })
+//    .then(() => {
+//      return this.seedPostgresSaveCSV("books", "books");
+//    })
+//    .then((value) => {
+//      console.log(" -- postgres save csv query query end --", value);
+//    })
+    .catch((error) => { 
       console.log("database seeding", error);
     });
 };
 
 module.exports.seedPostgresSaveCSV = async (table, csvFile) => {
-  if (table === "books") {
-    console.log(" -- postgres save books csv started -- ");
 
+  if (table === "books") {
+    console.log(` -- postgres save books csv started -- file:${currentDirectory}/${csvFile}.csv`);
+
+  try { 
     const booksTable = await postgres.query(
       `COPY ${table} (book_id, book_title, price) FROM '${currentDirectory}/${csvFile}.csv' WITH (FORMAT CSV, HEADER true, DELIMITER ',');`
-    );
+     );
 
-    return booksTable;
+	return booksTable;
+   } catch (err) { console.log("books copy query try/catch error"); }
   } else if (table === "reviews") {
     try {
       console.log(" -- postgres save reviews csv started -- ");
 
       const reviewsTable = await postgres.query(
         `COPY ${table} (review_id, review_text, rating, book_id) FROM '${currentDirectory}/${csvFile}.csv' WITH (FORMAT CSV, HEADER true, DELIMITER ',');`
-      );
-
-      return reviewsTable;
+     );
+     return reviewsTable;
     } catch (error) {
       console.log("reviews save err", error);
     }
@@ -95,10 +101,10 @@ module.exports.seedPostgresReviews = () => {
     resolve(this.createReviewsCsvFile());
   })
 
-    .then(() => {
-      console.log(`reviews ${this.variables.csvNum} resolved`);
-      this.seedPostgresSaveCSV("reviews", `reviews${this.variables.csvNum}`);
-    })
+//    .then(() => {
+//      console.log(`reviews ${this.variables.csvNum} resolved`);
+//      this.seedPostgresSaveCSV("reviews", `reviews${this.variables.csvNum}`);
+//    })
     .catch((err) => {
       console.log("reviews err", err);
     });
