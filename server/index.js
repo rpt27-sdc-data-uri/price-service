@@ -12,8 +12,12 @@ const compression = require("compression");
 const cors = require("cors");
 
 // cache
+const redisConfig = {
+  host: "3.129.19.227",
+  port: 6379 
+}
 const redis = require("redis");
-const client = redis.createClient();
+const client = redis.createClient(redisConfig);
 
 // clustering
 const cluster = require("cluster");

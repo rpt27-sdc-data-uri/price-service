@@ -34,7 +34,7 @@ const init = async () => {
     process.env.PSQL_USER, // for ec2 = postgres
     process.env.PSQL_PW, // for ec2 = sdc
     {
-      host: "localhost", // for ec2 = 3.129.19.227/
+      host: "3.129.19.227", // for ec2 = 3.129.19.227/
       dialect: "postgres", // port = 5432
       logging: false,
     }

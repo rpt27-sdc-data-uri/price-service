@@ -23,14 +23,14 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: "postgresseed", // for ec2 = books
+          model: "books", // for ec2 = books
           key: "book_id",
         },
       },
     },
     {
       timestamps: false,
-      tableName: "postgresseedreviews", // for ec2 = reviews
+      tableName: "reviews", // for ec2 = reviews
     }
   );
 

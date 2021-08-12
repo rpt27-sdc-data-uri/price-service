@@ -23,7 +23,7 @@ module.exports = (sequelize) => {
     },
     {
       timestamps: false,
-      tableName: "postgresseed", // for ec2 = books
+      tableName: "books", // for ec2 = books
     }
   );
 };
